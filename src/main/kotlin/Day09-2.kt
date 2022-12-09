@@ -4,8 +4,6 @@ import java.io.File
 import day092.Direction.*
 import kotlin.math.abs
 
-val input = File("inputs/day09.txt").readText().lines()
-
 enum class Direction {
     UP,
     DOWN,
@@ -28,40 +26,68 @@ data class Movement(val direction: Direction) {
 fun String.toMovements(): List<Movement> {
     val (dir, len) = split(" ")
     val direction = when (dir) {
-        "U" -> Direction.UP
-        "D" -> Direction.DOWN
-        "L" -> Direction.LEFT
-        "R" -> Direction.RIGHT
+        "U" -> UP
+        "D" -> DOWN
+        "L" -> LEFT
+        "R" -> RIGHT
         else -> error("what")
     }
 
     return List(len.toInt()) { Movement(direction) }
 }
 
+val input = File("inputs/txt").readLines()
+val instructions = input.flatMap { it.toMovements() }
 
 fun main() {
-    val inst = input.flatMap { it.toMovements() }
-    println(inst)
+    part2()
+}
+
+fun part1() {
+    val visited = hashSetOf<Vec2>()
+    var head = Vec2(0, 0)
+    var tail = Vec2(0, 0)
+    visited += tail
+    for(i in instructions) {
+        head = i.move(head)
+        if(head.isAdjacent(tail)) continue
+        val offset = head - tail
+        val normalizedOffset = Vec2(
+            offset.x.coerceIn(-1..1),
+            offset.y.coerceIn(-1..1)
+        )
+        tail += normalizedOffset
+        visited += tail
+    }
+
+    println(visited)
+    for(y in visited.minOf { it.y }..visited.maxOf { it.y }) {
+        for(x in visited.minOf { it.x }..visited.maxOf { it.x }) {
+            if(Vec2(x, y) in visited) print('#') else print('.')
+        }
+        println()
+    }
+    println(visited.count())
+}
+
+fun part2() {
     val visited = hashSetOf<Vec2>()
     val snake = MutableList(10) { Vec2(0, 0) }
-    println(snake)
     visited += Vec2(0, 0)
-    for (i in inst) {
+    for (i in instructions) {
         val head = snake[0]
-        val tail = snake[1]
-        val newHead = i.move(head)
-        snake[0] = newHead
-        for (headIdx in 0..8) {
+        snake[0] = i.move(head)
+
+        for (headIdx in 0 until 9) {
             val curTail = snake[headIdx+1]
-            if(curTail.isAdjacent(snake[headIdx])) continue
-            val offset = snake[headIdx] - snake[headIdx+1]
+            val curHead = snake[headIdx]
+            if(curTail.isAdjacent(curHead)) continue
+            val offset = curHead - curTail
             val normalizedOffset = Vec2(
                 offset.x.coerceIn(-1..1),
                 offset.y.coerceIn(-1..1)
             )
-//            println(normalizedOffset)
             val newTail = curTail + normalizedOffset
-            println("moved ${headIdx+1} by $normalizedOffset")
             snake[headIdx + 1] = newTail
         }
 
@@ -74,8 +100,7 @@ fun main() {
         }
         println()
     }
-    println(visited)
-    println(visited.count())
+    println(visited.count())   
 }
 
 data class Vec2(val x: Int, val y: Int) {
@@ -85,10 +110,6 @@ data class Vec2(val x: Int, val y: Int) {
 
     operator fun minus(other: Vec2): Vec2 {
         return Vec2(this.x - other.x, this.y - other.y)
-    }
-
-    fun manhattan(other: Vec2): Int {
-        return abs(other.x - x) + abs(other.y - y)
     }
 
     operator fun plus(other: Vec2): Vec2 {
