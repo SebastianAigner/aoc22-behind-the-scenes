@@ -54,7 +54,7 @@ object Part2 {
 
     fun crt() {
         val sprite = (x - 1..x + 1)
-        if (crt % 40 == 0 && crt > 0) {
+        if (crt > 0 && crt % 40 == 0) {
             println()
         }
         if (crt % 40 in sprite) {
@@ -70,8 +70,7 @@ object Part2 {
                 is Addx -> {
                     // begin executing addx
                     crt() // crt draws
-                    // crt draws
-                    crt()
+                    crt() // crt draws
                     x += i.num // finish executing, CRT now something else
                 }
 
