@@ -30,17 +30,17 @@ fun main() {
     println(start)
     println(end)
     println(map)
-    fun findShortestPath(): Int {
+    fun findShortestPath(startPositon: Vec2): Int {
         val q = ArrayDeque<Vec2>()
         val explored = hashSetOf<Vec2>()
-        explored.add(start!!)
-        q.addLast(start!!)
+        explored.add(startPositon!!)
+        q.addLast(startPositon!!)
         val parent = mutableMapOf<Vec2, Vec2>()
 
         fun len(v: Vec2): Int {
             var curr = v
             var len = 0
-            while (curr != start) {
+            while (curr != startPositon) {
                 curr = parent[curr]!!
                 len++
             }
@@ -67,8 +67,9 @@ fun main() {
                 }
             }
         }
-        error("oh no")
+        return Int.MAX_VALUE
     }
-    println(findShortestPath())
+    println(findShortestPath(start!!))
+    println(map.filterValues { it == 0 }.minOf { findShortestPath(it.key) })
 
 }
